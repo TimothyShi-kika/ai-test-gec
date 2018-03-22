@@ -151,18 +151,15 @@ def shuf_file(learner_file_path, native_file_path, learner_shuf_file_path, nativ
         l_lines = learner_file.readlines()
         n_lines = native_file.readlines()
         c = list(zip(l_lines, n_lines))
-        shuffle(c)
-        shuffle(c)
-        shuffle(c)
-        shuffle(c)
-        shuffle(c)
+        for _ in range(10):
+            shuffle(c)
         l_lines, n_lines = zip(*c)
         l_shuf_file.writelines(l_lines)
         n_shuf_file.writelines(n_lines)
 
 
 if __name__ == '__main__':
-    # main()
+    main()
     shuf_file('../../data_lang8/train.learner', '../../data_lang8/train.native',
               '../../data_lang8/train_shuf.learner', '../../data_lang8/train_shuf.native')
     shuf_file('../../data_lang8/dev.learner', '../../data_lang8/dev.native',

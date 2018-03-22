@@ -14,46 +14,46 @@ def correct_sentence(raw_sentence, model, session, preprocessor,
                      learner_vocab, native_reversed_vocab):
     tokens, tags, _ = preprocessor.preprocess_token_seq(raw_sentence.strip().split())
     rev_tokens = tokens[::-1]
-    # rev_tags = tags[::-1]
+    rev_tags = tags[::-1]
     input_ids = [learner_vocab.get(k) if k in learner_vocab else learner_vocab.get('<unk>')
                  for k in rev_tokens]
-    # input_tag_ids = [learner_vocab.get(k) if k in learner_vocab else learner_vocab.get('<unk>')
-    #                  for k in rev_tags]
+    input_tag_ids = [learner_vocab.get(k) if k in learner_vocab else learner_vocab.get('<unk>')
+                     for k in rev_tags]
     reshaped_input = np.reshape(np.array(input_ids), (1, len(input_ids)))
-    # reshaped_tag_input = np.reshape(np.array(input_tag_ids), (1, len(input_tag_ids)))
+    reshaped_tag_input = np.reshape(np.array(input_tag_ids), (1, len(input_tag_ids)))
     output_ids = session.run(model.sample_id,
                              feed_dict={model.input_data: reshaped_input,
                                         model.source_sequence_length: np.array([len(input_ids)])})
-    # output_tag_ids = session.run(model.sample_id,
-    #                              feed_dict={model.input_data: reshaped_tag_input,
-    #                                         model.source_sequence_length: np.array([len(input_tag_ids)])})
+    output_tag_ids = session.run(model.sample_id,
+                                 feed_dict={model.input_data: reshaped_tag_input,
+                                            model.source_sequence_length: np.array([len(input_tag_ids)])})
     if model.time_major:
         output_ids = output_ids.transpose()
-        # output_tag_ids = output_tag_ids.transpose()
+        output_tag_ids = output_tag_ids.transpose()
     output_words = [native_reversed_vocab[i] for i in output_ids[0][0] if i >= 0]
-    # output_tags = [native_reversed_vocab[i] for i in output_tag_ids[0][0] if i >= 0]
+    output_tags = [native_reversed_vocab[i] for i in output_tag_ids[0][0] if i >= 0]
     try:
         eos_index = output_words.index('</s>')
     except ValueError:
         eos_index = len(output_words)
-    # try:
-    #     tag_eos_index = output_tags.index('</s>')
-    # except ValueError:
-    #     tag_eos_index = len(output_tags)
+    try:
+        tag_eos_index = output_tags.index('</s>')
+    except ValueError:
+        tag_eos_index = len(output_tags)
     raw_output_tokens = output_words[:eos_index]
-    # raw_output_tags = output_tags[:tag_eos_index]
+    raw_output_tags = output_tags[:tag_eos_index]
     capitalize(raw_output_tokens)
     output_sentence = merge_unk_new(raw_output_tokens).split()
-    # output_tags = merge_unk_new(raw_output_tags).split()
+    output_tags = merge_unk_new(raw_output_tags).split()
     output_sentence_str = ' '.join(output_sentence)
     # print('After merge_unk_new')
     # print(output_sentence)
     # print(output_tags)
-    # output_sentence_tokens, output_sentence_tags, output_sentence_lemmas = \
-    #     preprocessor.preprocess_token_seq(output_sentence, need_split_unk=False)
-    # if output_tags != output_sentence_tags:
-    #     output_sentence_str = calibrate_correction_result(output_sentence_tokens, output_sentence_tags,
-    #                                                       output_sentence_lemmas, output_tags)
+    output_sentence_tokens, output_sentence_tags, output_sentence_lemmas = \
+        preprocessor.preprocess_token_seq(output_sentence, need_split_unk=False)
+    if output_tags != output_sentence_tags:
+        output_sentence_str = calibrate_correction_result(output_sentence_tokens, output_sentence_tags,
+                                                          output_sentence_lemmas, output_tags)
     return output_sentence_str
 
 
@@ -86,7 +86,7 @@ def main(argv):
     # spell_checker = SySpellCompound()
 
     # ckpt = argv[1]
-    ckpt_num = 975000
+    ckpt_num = 225000
     ckpt = 'tmp/best_bleu/translate.ckpt-{}'.format(ckpt_num)
     gnmt_model.saver.restore(session, ckpt)
     learner_vocab, _ = build_vocab_dict('tmp/en_vocab')
