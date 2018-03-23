@@ -146,10 +146,15 @@ def calibrate_correction_result(res_sent_tokens, res_sent_tags, res_sent_lemmas,
                 output_tokens.append(res_sent_tokens[j])
             i += 1
 
-    if len(output_tokens) == len(res_sent_tokens):
-        return ' '.join(capitalize(output_tokens))
-    else:
-        return ' '.join(capitalize(res_sent_tokens))
+    try:
+        if len(output_tokens) == len(res_sent_tokens):
+            capitalize(output_tokens)
+            return ' '.join(output_tokens)
+        else:
+            capitalize(res_sent_tokens)
+            return ' '.join(res_sent_tokens)
+    except TypeError:
+        return ''
 
 
 def recover_unwanted_words(final_context):

@@ -54,6 +54,11 @@ def correct_sentence(raw_sentence, model, session, preprocessor,
     if output_tags != output_sentence_tags:
         output_sentence_str = calibrate_correction_result(output_sentence_tokens, output_sentence_tags,
                                                           output_sentence_lemmas, output_tags)
+        if not output_sentence_str.strip():
+            try:
+                output_sentence_str = ' '.join(output_sentence)
+            except TypeError:
+                return ''
     return output_sentence_str
 
 
@@ -94,8 +99,10 @@ def main(argv):
     print('Model restored')
     # src_file_path = '/Users/txshi/EngineProjects/m2scorer/conll2014_test'
     # dst_file_path = '/Users/txshi/EngineProjects/m2scorer/conll2014_test_pred.{}'.format(ckpt_num)
-    src_file_path = 'data_lang8/test.tingxun.learner'
-    dst_file_path = 'data_lang8/test.tingxun.pred.{}'.format(ckpt_num)
+    # src_file_path = 'data_lang8/test.tingxun.learner'
+    # dst_file_path = 'data_lang8/test.tingxun.pred.{}'.format(ckpt_num)
+    src_file_path = 'data_lang8/test.tingxun.lang8.learner'
+    dst_file_path = 'data_lang8/test.tingxun.lang8.pred.{}'.format(ckpt_num)
     file_trans(src_file_path, dst_file_path, gnmt_model, session, learner_vocab, native_reversed_vocab)
     # inter_trans(gnmt_model, session, learner_vocab, native_reversed_vocab)
     # gnmt_model.saver.save(session, '/Users/txshi/EngineProjects/GEC_Decoder_Wrapper/tmp/best_bleu/txshi.ckpt')
